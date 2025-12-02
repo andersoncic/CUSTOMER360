@@ -1,13 +1,25 @@
-# CUSTOMER360
+# Customer360 / VIVO
 C4 MODEL - CUSTOMER 360 / PONTO ÚNICO DE CONSULTA
 
 Resumo da estratégia (alto nível).
 Diagrama C4 (Context → Containers → Componentes).
-Fluxo de dados e tecnologias escolhidas (por que e como usar).
+Fluxo de dados e tecnologias escolhidas.
 Regras de consolidação / resolução de conflito.
 Como garantir latência < 1ms e demais SLAs.
 Resiliência e tolerância a falhas (legados/infra).
-Mapeamento para OpenAPIs (TM Forum) com justificativa e links.
+Mapeamento para OpenAPIs (TM Forum)
+
+### Frameworks e Tecnologias
+
+| **Camada**                | **Tecnologia / Framework**                         | 
+|----------------------------|---------------------------------------------------|
+| API Gateway                | Kong ou AWS/Azure API Gateway                     | 
+| Microsserviços             | Spring Boot (Java) ou Quarkus (Java/Kotlin)      |
+| Broker de Mensagens        | Apache Kafka ou RabbitMQ (para casos mais simples) | 
+| Cache Distribuído          | Redis ou Hazelcast                                | 
+| Banco de Dados (CDH)       | PostgreSQL ou MongoDB (dependendo da complexidade do modelo) |
+| CDC (Legado)               | Debezium                 |
+
 
 
 Diagrama (arte detalhado)
@@ -107,8 +119,6 @@ A. Tecnologias
 
   ### 4) Estratégia de Resiliência e Robustez
 
-A resiliência é fundamental, especialmente ao lidar com sistemas legados:
-
 - **Persistência de Eventos (Kafka)**
   - Se o *Customer Sync Worker* falhar, o Kafka retém os eventos de alteração.
   - Quando o Worker volta, ele continua o processamento de onde parou.
@@ -121,8 +131,39 @@ A resiliência é fundamental, especialmente ao lidar com sistemas legados:
 - **Circuit Breaker**
   - Implementado na **Customer Query API**.
   - Se o Redis ou o Customer360 DB apresentar falhas ou alta latência, o Circuit Breaker é acionado.
-  - Isso protege o sistema de consulta e permite retornar uma resposta de **fallback** (ex.: dado *stale*).
+  - Isso protege o sistema de consulta e permite retornar uma resposta de **fallback**
   - Mantém a **disponibilidade do serviço** mesmo em períodos de instabilidade.
+ 
+  
+### 5) Padronização e Domínios de Negócio (TM Forum)
+
+A arquitetura é **"APIficada"**, usando os padrões do TM Forum para facilitar a **interoperabilidade futura**.
+
+#### Funcionalidades e Padrões
+
+| **Funcionalidade**               | **Padrão / Domínio**                  |
+|---------------------------------|--------------------------------------|
+| Consulta do Golden Record        | TMF632 Customer Management           |
+| Cadastro do Cliente (SSOT)       | TMF632 Customer Management           |
+| Notificação de Alteração         | TMF677 Customer Notification         |
+| Gerenciamento de Eventos         | TM Forum / Eventos                   |
+
+### Resumo da Solução
+
+- A solução propõe uma **arquitetura desacoplada**, **orientada a eventos**.
+- Inclui um **MDM centralizado (Cliente Data Hub - CDH)**.
+- Conta com uma **camada de consulta otimizada**, garantindo:
+  - Latência **ultrabaixa** (sub-milissegundos) nas consultas.
+  - **Qualidade e consistência dos dados**.
+
+---
+### Diagrama Customer360 / VIVO
+
+![Diagrama Customer360](Customer360_VIVO_diagram.png)
+
+> Diagrama criado no [diagrams.net](https://app.diagrams.net/).
+
+
 
 
 
