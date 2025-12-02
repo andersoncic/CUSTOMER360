@@ -30,7 +30,7 @@ Diagrama (arte detalhado)
 [CustomerQuery API (Spring Boot)] <---- API Gateway (Kong/Apigee) <---- [Portal / Salesforce UI / MeuVivo]
 
 
-### 1) Estratégia resumida (one-liner)
+### 1) Estratégia resumida
 
 - Criar um **Data Hub read-store** (denormalized, in-memory / search store) que será a **fonte única de consulta** (Customer Query API).
 - Esse hub é alimentado por **eventos (CDC / mensagens)** vindos dos legados e do Salesforce.
